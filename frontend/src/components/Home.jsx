@@ -18,7 +18,7 @@ const Home = () => {
     // for the first  time creating the doc
     async function createDocumentAndSaveId() {
         try {
-            const response = await fetch('https://cuddly-cod-wrvwr7pwqrqvhq6v-8080.app.github.dev/api/content', {
+            const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/content`, {
                 method: "post",
                 headers: {
                     "Content-Type": "application/json"
@@ -31,7 +31,7 @@ const Home = () => {
             }
 
             const data = await response.json();
-            console.log("created conted id",data.content._id);
+            console.log("created conted id", data.content._id);
             setDocumentId(data.content._id);
         } catch (error) {
             console.error("Error creating document:", error);
@@ -42,7 +42,7 @@ const Home = () => {
     useEffect(() => {
         const fetchDocs = async () => {
             try {
-                const response = await fetch("https://cuddly-cod-wrvwr7pwqrqvhq6v-8080.app.github.dev/api/content");
+                const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/content`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

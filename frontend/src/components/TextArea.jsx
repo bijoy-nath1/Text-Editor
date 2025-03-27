@@ -1,22 +1,22 @@
 import JoditEditor from 'jodit-react';
-import { useCallback, useRef,useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useContext } from 'react';
-import { StoreContext } from'../GlobalState/StoreContext'
+import { StoreContext } from '../GlobalState/StoreContext'
 import { debounce } from "lodash";
 
 
-const TextArea = ()=>{
+const TextArea = () => {
     const editor = useRef(null);
     const [content, setContent] = useState('');
     const { loading, setLoading, DocumentId } = useContext(StoreContext);
 
-     const save = useCallback(
+    const save = useCallback(
         debounce(async (data) => {
             setLoading(true);
             console.log("Saving content to database:", data);
 
             try {
-                const response = await fetch("https://cuddly-cod-wrvwr7pwqrqvhq6v-8080.app.github.dev/api/content", {
+                const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/content`, {
                     method: "put",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: data, contentId: DocumentId }),
@@ -31,13 +31,13 @@ const TextArea = ()=>{
         }, 2000), // Wait 2 seconds after user stops typing
         []
     );
-   
+
     const handleChange = (newContent) => {
         setContent(newContent)
         save(newContent)
 
     }
-    return(
+    return (
         <JoditEditor
             ref={editor}
             value={content}
@@ -48,4 +48,4 @@ const TextArea = ()=>{
         />
     )
 }
-export default TextArea ;
+export default TextArea;

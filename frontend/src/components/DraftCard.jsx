@@ -18,7 +18,7 @@ const DraftCard = ({ title, id }) => {
     // get the file 
     try {
       console.log(id)
-      const response = await fetch(`https://cuddly-cod-wrvwr7pwqrqvhq6v-8080.app.github.dev/api/content/${id}`)
+      const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/content/${id}`)
       const data = await response.json();
       console.log("data", data, response)
       setDocument(data);
@@ -53,7 +53,7 @@ const DraftCard = ({ title, id }) => {
           parents: ["root"] // Save to root directory
         }),
       });
-      console.log("metadataresponse",metadataResponse)
+      console.log("metadataresponse", metadataResponse)
       const metadata = await metadataResponse.json();
       if (!metadata.id) {
         alert("Failed to create file metadata.");

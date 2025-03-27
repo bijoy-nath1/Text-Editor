@@ -18,7 +18,7 @@ const Navbar = () => {
       try {
         console.log("document id:", DocumentId)
 
-        const response = await fetch("https://cuddly-cod-wrvwr7pwqrqvhq6v-8080.app.github.dev/api/content", {
+        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/content`, {
           method: "put",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: data, contentId: DocumentId }),
