@@ -5,13 +5,14 @@ export const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
-    const [token,setToken] = useState('');
     const [DocumentId,setDocumentId] = useState('');
+    const [user,setUser] = useState(null)
+
 
 
 
     return (
-        <StoreContext.Provider value={{ loading, setLoading, token, setToken, DocumentId, setDocumentId}}>
+        <StoreContext.Provider value={{ loading, setLoading, DocumentId, setDocumentId,user,setUser}}>
             {children}
         </StoreContext.Provider>
     );

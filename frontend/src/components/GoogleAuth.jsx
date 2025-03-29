@@ -1,30 +1,37 @@
-import { signInWithGoogle, logOut } from '../Oauth/firebase';
-import { useState } from 'react';
+import { signInWithGoogle, logOut, auth } from '../Oauth/firebase';
 import google from '../assets/image.png'
 import { useContext } from 'react';
 import { StoreContext } from '../GlobalState/StoreContext';
 
 const GoogleAuth = () => {
-    const {token,setToken} = useContext(StoreContext);
-    const [user,setUser] = useState(null)
+    const {user,setUser} = useContext(StoreContext);
 
     const handleLogin = async () => {
-        const response = await signInWithGoogle();
-        setToken(response.token);
-        console.log("token after login", token)
+         await signInWithGoogle();
+        auth.onAuthStateChanged(user => {
+            if(user){
+                setUser(user);
+                localStorage.setItem('user',JSON.stringify(user));
+                setUser(user);
+            }
+        })
+        
+       
 
-        setUser(response.user)
     };
 
     const handleLogOut = async () => {
         await logOut();
+       let user = localStorage.getItem('user');
+        user = null;
+        localStorage.setItem('user',user);
         setUser(null);
     };
 
     return (
         <>
             {user ? (
-                <div className="relative group h-10 w-10 rounded-full border border-black flex justify-center items-center m-1 overflow-hidden">
+                <div className="relative group h-10 w-10 rounded-full flex justify-center items-center  overflow-hidden">
                     {/* Profile Image */}
                     <button
                         onClick={handleLogOut}
@@ -42,12 +49,12 @@ const GoogleAuth = () => {
 
 
             ) : (
-                <div className='h-[80%] w-10 rounded-full border-1 border-black  flex justify-center items-center m-1'>
+                <div className='h-[80%] w-10 rounded-full    flex justify-center items-center'>
                         <button
                             onClick={handleLogin}
-                            className="h-10 w-10 rounded-full flex justify-center items-center m-1 cursor-pointer"
+                            className="h-10 w-10 rounded-full flex justify-center items-center  cursor-pointer"
                         >
-                            <img src={google} alt="google" className="h-3/4 w-3/4 object-contain" />
+                            <img src={google} alt="google" className="-full full object-contain rounded-full" />
                         </button>
                 </div>
             )}
