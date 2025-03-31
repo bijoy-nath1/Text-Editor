@@ -5,28 +5,54 @@ import { StoreContext } from "../GlobalState/StoreContext";
 import { useContext } from "react";
 import GoogleAuth from "./GoogleAuth";
 import CreateDoc from "./CreateDoc";
+import {getDrafts} from '../utils/localStorage';
 
 const Home = () => {
-    const { setDocumentId } = useContext(StoreContext);
+    const { user } = useContext(StoreContext);
 
     const [docs, setDocs] = useState([]);
 
-    // for the first  time creating the doc
+  
 
     useEffect(() => {
         const fetchDocs = async () => {
             try {
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_ENDPOINT}/api/content`,
-                );
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+        if(user){
+            const drafts = getDrafts();
+            if(drafts){
+                const result = await Promise.all(drafts.forEach((draft)=>{
+                   fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/v1/user`,{
+                       method:'post',
+                       headers:{
+                           "Content-Type":"application/json"
+                       },
+                       body:JSON.stringify({
+                           name:user.displayName,
+                           UserGoogleId:user.uid,
+                           title:draft.title,
+                           text:draft.text,
+                       })
+                   })
+                }))
+                setDocs(result);
+            }
+            
+            }
+                
+           if(user){
+               const response = await fetch(
+                   `${import.meta.env.VITE_API_ENDPOINT}/api/v1/user/${user.uid}`,
+               );
 
-                const docs = await response.json();
-                setDocs(docs);
-                console.log(docs);
+               if (!response.ok) {
+                   throw new Error(`HTTP error! status: ${response.status}`);
+               }
+
+               const drafts = await response.json();
+               setDocs(drafts);
+               console.log(docs);
+           }
             } catch (error) {
                 console.error("Error fetching documents:", error);
                 // Handle the error appropriately (e.g., show an error message to the user)

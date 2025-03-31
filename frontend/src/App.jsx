@@ -16,6 +16,7 @@ function App() {
       let user = localStorage.getItem('user');
       user = JSON.parse(user);
       setUser(user)
+    console.log(user)
   },[])
 
   return (

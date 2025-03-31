@@ -1,26 +1,32 @@
-import JoditEditor from 'jodit-react';
-import { useCallback, useRef, useState } from 'react';
-import { useContext } from 'react';
-import { StoreContext } from '../GlobalState/StoreContext'
+import JoditEditor from "jodit-react";
+import { useCallback, useRef, useState } from "react";
+import { useContext } from "react";
+import { StoreContext } from "../GlobalState/StoreContext";
 import { debounce } from "lodash";
-
+import { updateDraftText } from "../utils/localStorage";
 
 const TextArea = () => {
     const editor = useRef(null);
-    const [content, setContent] = useState('');
-    const { loading, setLoading, DocumentId } = useContext(StoreContext);
+    const [content, setContent] = useState("");
+    const { setLoading, DocumentId, user } = useContext(StoreContext);
 
-    const save = useCallback(
+    const saveToDatabase = useCallback(
         debounce(async (data) => {
             setLoading(true);
             console.log("Saving content to database:", data);
 
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/content`, {
-                    method: "put",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: data, contentId: DocumentId }),
-                });
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_ENDPOINT}/api/v1/user`,
+                    {
+                        method: "patch",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            text: data,
+                            draftId: DocumentId,
+                        }),
+                    },
+                );
                 const result = await response.json();
                 console.log("Save successful:", result);
             } catch (error) {
@@ -29,23 +35,28 @@ const TextArea = () => {
                 setLoading(false);
             }
         }, 2000), // Wait 2 seconds after user stops typing
-        []
+        [],
+    );
+
+    const saveToLocal = useCallback(
+        debounce(async (id, data) => {
+            try {
+                updateDraftText(id, data);
+            } catch (error) {
+                console.log(error);
+            }
+        }, 2000),
+        [],
     );
 
     const handleChange = (newContent) => {
-        setContent(newContent)
-        save(newContent)
-
-    }
-    return (
-        <JoditEditor
-            ref={editor}
-            value={content}
-            // config={config}
-            // tabIndex={1} // tabIndex of textarea
-            // onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
-            onChange={handleChange}
-        />
-    )
-}
+        setContent(newContent);
+        if (user) {
+            saveToDatabase(newContent);
+        } else {
+            saveToLocal(LocalDraftId, newContent);
+        }
+    };
+    return <JoditEditor ref={editor} value={content} onChange={handleChange} />;
+};
 export default TextArea;

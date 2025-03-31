@@ -5,12 +5,14 @@ import { useContext } from 'react';
 import { StoreContext } from '../GlobalState/StoreContext'
 import { useCallback } from "react";
 import { debounce } from "lodash";
+import {updateDraftTitle}  from '../utils/localStorage';
 
 const Navbar = () => {
   const [title, setTitle] = useState('')
-  const { setLoading, DocumentId } = useContext(StoreContext)
+  const {user, setLoading, DocumentId ,LocalDraftId} = useContext(StoreContext);
 
-  const save = useCallback(
+
+  const saveToDatabase = useCallback(
     debounce(async (data) => {
       setLoading(true);
       console.log("Saving content to database:", data);
@@ -18,10 +20,10 @@ const Navbar = () => {
       try {
         console.log("document id:", DocumentId)
 
-        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/content`, {
-          method: "put",
+        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/v1/user`, {
+          method: "patch",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: data, contentId: DocumentId }),
+          body: JSON.stringify({ title: data, draftId: DocumentId }),
         });
         const result = await response.json();
         console.log("Save successful:", result);
@@ -34,9 +36,21 @@ const Navbar = () => {
     []
   );
 
+  const saveToLocal = useCallback(debounce(async(id,data)=>{
+    try{
+      updateDraftTitle(id,data)
+    }catch(error){
+      console.log(error)
+    }
+  },2000),[])
+
   function handleChange(e) {
     setTitle(e.target.value)
-    save(title)
+if(user){
+    saveToDatabase(title)
+}else{
+  saveToLocal(LocalDraftId,title)
+}  
   }
 
   return (

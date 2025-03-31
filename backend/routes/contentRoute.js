@@ -1,12 +1,12 @@
 import express from 'express'
-import { updateContent, createContent, getContents, getContent } from "../controllers/contentController.js"
+import { updateDraft, createUser, getDrafts, getDraft } from "../controllers/contentController.js"
 
 const router = express.Router();
 
-router.post('/', createContent);
-router.put('/', updateContent);
-router.get('/', getContents);
-router.get('/:id', getContent)
+router.post('/', createUser);
+router.patch('/', updateDraft);
+router.get('/:UserGoogleId', getDrafts);
+router.get('/:id', getDraft)
 
 
 

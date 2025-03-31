@@ -1,73 +1,118 @@
-import Content from "../models/content.model.js";
+import Draft from "../models/draft.model.js";
+import User from "../models/user.model.js";
 
-export const createContent = async (req, res) => {
+export const createUser = async (req, res) => {
+  // create a new draft in the database and save text and title to thedrafts collection and save the drat id in existing users drafts array
+
   try {
-    console.log('save content called');
-    const { text, title } = req.body;
-    const newContent = new Content({ text, title });
-    await newContent.save();
-
-    res.status(201).json({ message: "Content saved successfully", content: newContent });
-    console.log('api hit properly')
+    const { UserGoogleId, name,title,text } = req.body;
+    const user = await User.findOne({ UserGoogleId });
+    if (user) {
+      const draft = new Draft({});
+      await draft.save();
+      user.drafts.push(draft._id);
+      await user.save();
+      res.status(200).json({
+        message: "user exists Draft created successfully",
+        draft,
+        user,
+      });
+    } else {
+      if(text && title){
+        const draft = new Draft({ title, text });
+        await draft.save();  
+        const newUser = new User({ UserGoogleId, name, drafts: [draft._id] });
+        await newUser.save();
+        res.status(200).json({
+          message: "user does not exist Draft created successfully",
+          draft,
+          user: newUser,
+        })
+      }
+      const draft = new Draft({});
+      await draft.save();
+      const user = new User({
+        name,
+        UserGoogleId,
+        drafts: [draft._id],
+      });
+      await user.save();
+      res.status(200).json({
+        message: "user dosn't exists Draft created successfully",
+        draft,
+        user,
+      });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
 
-
-}
-
-export const updateContent = async (req, res) => {
+//update the existing draft in the editor
+export const updateDraft = async (req, res) => {
   try {
-    const { contentId, text, title } = req.body;
-    if (!contentId) return res.status(400).json({ error: 'error contentID cannot be empty' });
-    const existingContent = await Content.findOne({ _id: contentId });
-    if (!existingContent) {
+    const { draftId, text, title } = req.body;
+    if (!draftId)
+      return res.status(400).json({ error: "error draftId cannot be empty" });
+    const existingDraft = await Draft.findOne({ _id: draftId });
+    if (!existingDraft) {
       return res.status(404).json({ error: "Content not found" });
     }
-
-
+// console.log(existingDraft);
     if (text) {
-
-      existingContent.text = text
-      existingContent.save();
-    };
-
-    if (title) {
-
-      existingContent.title = title;
-      existingContent.save();
+      existingDraft.text = text;
+      await existingDraft.save();
     }
 
+    if (title) {
+      existingDraft.title = title;
+      await existingDraft.save();
+    }
 
-
-    res.status(201).json({ message: "Content updated successfully", content: existingContent });
+    res.status(201).json({
+      message: "draft updated successfully",
+      draft: existingDraft,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
 
-
-}
-
-
-export const getContents = async (req, res) => {
+export const getDrafts = async (req, res) => {
+  //in this route u were working last map is not returning data desired
   try {
-    const getAllDocs = await Content.find();
-    res.json(getAllDocs);
+    const { UserGoogleId } = req.params;
+    const user = await User.findOne({ UserGoogleId });
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+    const drafts = user.drafts;
+    const result = await Promise.all(drafts.map((draftId)=>{
+      const draft =   Draft.findOne({_id:draftId});
+      console.log(draft)
+      return draft
+    }))
+    res.status(200).json({
+      message: "drafts fetched successfully",
+      result,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-export const getContent = async (req, res) => {
+
+// i will fix it later
+export const getDraft = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('id:', id);
+    console.log("id:", id);
     const content = await Content.findById(id);
-    console.log('content:', content);
+    console.log("content:", content);
     res.status(200).json(content);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
