@@ -5,8 +5,8 @@ export const createUser = async (req, res) => {
   // create a new draft in the database and save text and title to thedrafts collection and save the drat id in existing users drafts array
 
   try {
-    const { UserGoogleId, name,title,text } = req.body;
-    const user = await User.findOne({ UserGoogleId });
+    const { userGoogleId, name,title,text } = req.body;
+    const user = await User.findOne({ userGoogleId });
     if (user) {
       const draft = new Draft({});
       await draft.save();
@@ -21,7 +21,7 @@ export const createUser = async (req, res) => {
       if(text && title){
         const draft = new Draft({ title, text });
         await draft.save();  
-        const newUser = new User({ UserGoogleId, name, drafts: [draft._id] });
+        const newUser = new User({ userGoogleId, name, drafts: [draft._id] });
         await newUser.save();
         res.status(200).json({
           message: "user does not exist Draft created successfully",
@@ -33,7 +33,7 @@ export const createUser = async (req, res) => {
       await draft.save();
       const user = new User({
         name,
-        UserGoogleId,
+        userGoogleId,
         drafts: [draft._id],
       });
       await user.save();
@@ -83,8 +83,8 @@ export const updateDraft = async (req, res) => {
 export const getDrafts = async (req, res) => {
   //in this route u were working last map is not returning data desired
   try {
-    const { UserGoogleId } = req.params;
-    const user = await User.findOne({ UserGoogleId });
+    const { userGoogleId } = req.params;
+    const user = await User.findOne({ userGoogleId });
     if (!user) {
       return res.status(404).json({ error: "user not found" });
     }

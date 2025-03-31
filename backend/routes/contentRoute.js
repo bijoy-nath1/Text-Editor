@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/', createUser);
 router.patch('/', updateDraft);
-router.get('/:UserGoogleId', getDrafts);
+router.get('/:userGoogleId', getDrafts);
 router.get('/:id', getDraft)
 
 

@@ -9,18 +9,16 @@ connectDB();
 
 const app = express();
 
-app.use(cors({ 
-    origin: "https://0b274d8b-ce64-4408-9561-abbd81dede33-00-1iqo4llmoghcs.sisko.replit.dev/", 
-    methods: ["GET", "POST", "PUT", "DELETE"], 
-    allowedHeaders: ["Content-Type", "Authorization"],
-   
+app.use(cors({
+    origin: "*", // Allow requests from any origin
+    methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS", // Allow these methods
+    allowedHeaders: "Content-Type, Authorization"
 }));
-app.options('*', cors());
 
 
 app.use(express.json());
 app.use((req, res, next) => {
-    console.log(req.body);
+
     next();;
 })
 
