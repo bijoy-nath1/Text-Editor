@@ -8,12 +8,11 @@ import { updateDraftText } from "../utils/localStorage";
 const TextArea = () => {
     const editor = useRef(null);
     const [content, setContent] = useState("");
-    const { setLoading, DocumentId, user } = useContext(StoreContext);
+    const { setLoading, DocumentId, user,LocalDraftId } = useContext(StoreContext);
 
     const saveToDatabase = useCallback(
         debounce(async (data) => {
             setLoading(true);
-            console.log("Saving content to database:", data);
 
             try {
                 const response = await fetch(

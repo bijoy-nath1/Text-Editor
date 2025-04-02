@@ -2,14 +2,13 @@ import { Link } from "react-router-dom";
 import { AiOutlinePlus } from "react-icons/ai";
 import {StoreContext} from '../GlobalState/StoreContext';
 import { useContext } from "react";
-import createLocalDraft from '../utils/localStorage';
+import {createLocalDraft} from '../utils/localStorage';
 
 
 
 
 const CreateDoc = () =>{
-  const {user,setLocalDraftId}= useContext(StoreContext);
-  console.log(user);
+  const {user,setLocalDraftId,setDocumentId} = useContext(StoreContext);
 
   async function createDocument() {
     //if user has signed in 
@@ -21,7 +20,7 @@ if(user){
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({name:user.displayName, UserGoogleId:user.uid})
+        body: JSON.stringify({name:user.displayName, userGoogleId:user.uid})
     });
 
     if (!response.ok) {
@@ -29,8 +28,7 @@ if(user){
     }
 
     const data = await response.json();
-    console.log("created conted id", data.draft);
-    setDocumentId(data.draft._id);
+        setDocumentId(data.draft._id);
   } catch (error) {
     console.error("Error creating document:", error);
     // Handle the error appropriately (e.g., show an error message to the user)

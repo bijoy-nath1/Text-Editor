@@ -17,12 +17,9 @@ const DraftCard = ({ title, id }) => {
     }
     // get the file 
     try {
-      console.log(id)
       const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/content/${id}`)
       const data = await response.json();
-      console.log("data", data, response)
       setDocument(data);
-      console.log("document state", document)
     } catch (error) {
       console.log(error)
     }
@@ -30,8 +27,7 @@ const DraftCard = ({ title, id }) => {
 
     //upload the file 
     try {
-      console.log('Document text:', document.text);
-      console.log('Token from draft:', token);
+   
 
       if (!document.text) {
         alert("No document content available.");

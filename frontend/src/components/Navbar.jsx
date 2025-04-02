@@ -15,7 +15,6 @@ const Navbar = () => {
   const saveToDatabase = useCallback(
     debounce(async (data) => {
       setLoading(true);
-      console.log("Saving content to database:", data);
 
       try {
         console.log("document id:", DocumentId)
