@@ -7,6 +7,7 @@ import CreateDoc from "./CreateDoc";
 
 const Home = () => {
     const { docs } = useContext(StoreContext);
+    
 
     return (
         <>

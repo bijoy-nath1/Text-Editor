@@ -28,6 +28,7 @@ if(user){
     }
 
     const data = await response.json();
+    console.log('documentId',data.draft._id)
         setDocumentId(data.draft._id);
   } catch (error) {
     console.error("Error creating document:", error);

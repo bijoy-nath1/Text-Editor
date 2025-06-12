@@ -1,18 +1,18 @@
 import { signInWithGoogle, logOut, auth } from "../Oauth/firebase";
 import google from "../assets/image.png";
-import { useContext, useCallback } from "react";
+import { useContext, useCallback, useEffect } from "react";
 import { StoreContext } from "../GlobalState/StoreContext";
 import { getDrafts } from "../utils/localStorage";
 
 const GoogleAuth = () => {
     const { user, setUser, setDocs } = useContext(StoreContext);
 
-    const fetchDocs = useCallback(async () => {
-        if (!user) return;
+    const fetchDocs = useCallback(async (LoggedUser) => {
+        if (!LoggedUser) return;
 
         try {
             const response = await fetch(
-                `${import.meta.env.VITE_API_ENDPOINT}/api/v1/user/${user.uid}`,
+                `${import.meta.env.VITE_API_ENDPOINT}/api/v1/user/${LoggedUser.uid}`,
             );
 
             if (!response.ok) {
@@ -27,21 +27,24 @@ const GoogleAuth = () => {
         }
     }, [user, setDocs]);
 
-    const syncDrafts = useCallback(async () => {
+    const syncDrafts = useCallback(async (LoggedUser) => {
         console.log("syncDrafts called");
 
-        if (!user) {
-            console.log("Function returned");
+        if (!LoggedUser) {
+            
+            console.log("Function returned user:",LoggedUser);
             return;
         }
 
         try {
-            const { displayName, uid } = user;
+            const { displayName, uid } = LoggedUser;
+            // console.log('global state user:',user)
             const drafts = getDrafts();
 
             if (drafts && drafts.length > 0) {
                 await Promise.allSettled(
                     drafts.map(async (draft) => {
+                        console.log("name:",displayName,)
                         try {
                             const res = await fetch(
                                 `${import.meta.env.VITE_API_ENDPOINT}/api/v1/user`,
@@ -73,27 +76,21 @@ const GoogleAuth = () => {
                 );
 
                 localStorage.setItem("drafts", JSON.stringify([]));
+                 console.log("Drafts added to DB");
             }
-            console.log("Drafts added to DB");
-            fetchDocs();
+           
+            fetchDocs(LoggedUser);
         } catch (error) {
             console.error("Error syncing drafts to database:", error);
         }
     }, [user, fetchDocs]);
+    // handle login function
 
     const handleLogin = async () => {
         try {
             await signInWithGoogle();
 
-            const unsubscribe = auth.onAuthStateChanged((user) => {
-                if (user) {
-                    setUser(user);
-                    localStorage.setItem("user", JSON.stringify(user));
-                    syncDrafts();
-                }
-            });
-
-            return () => unsubscribe(); // Cleanup listener
+         
         } catch (error) {
             console.error("Error during login:", error);
         }
@@ -109,6 +106,20 @@ const GoogleAuth = () => {
         }
     };
 
+    useEffect(()=>{
+        const unsubscribe = auth.onAuthStateChanged((User) => {
+            console.log('event run')
+            if (User) {
+                console.log("callback user ",User)
+                setUser(User);
+                localStorage.setItem("user", JSON.stringify(User));
+             
+                syncDrafts(User);
+            }
+        });
+
+        return () => unsubscribe(); // Cleanup listener
+    },[])
     return (
         <>
             {user ? (

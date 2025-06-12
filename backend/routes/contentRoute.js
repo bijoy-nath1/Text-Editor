@@ -4,7 +4,7 @@ import { updateDraft, createUser, getDrafts, getDraft } from "../controllers/con
 const router = express.Router();
 
 router.post('/', createUser);
-router.patch('/', updateDraft);
+router.put('/', updateDraft);
 router.get('/:userGoogleId', getDrafts);
 router.get('/:id', getDraft)
 

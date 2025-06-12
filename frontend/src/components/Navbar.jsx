@@ -20,7 +20,7 @@ const Navbar = () => {
         console.log("document id:", DocumentId)
 
         const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/v1/user`, {
-          method: "patch",
+          method: "put",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: data, draftId: DocumentId }),
         });
