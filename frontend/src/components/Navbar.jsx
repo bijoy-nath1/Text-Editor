@@ -57,10 +57,10 @@ if(user){
       <textarea
         value={title}
         onChange={handleChange}
-        className="w-1/4 h-8 px-2  border-gray-300 rounded-md focus:outline-none border-none"
+        className="w-full h-8 px-2  border-gray-300 rounded-md focus:outline-none border-none truncate overflow-hidden"
         placeholder="Enter title..."
       />
-      <div className='w-[10%] flex justify-between h-full items-center'>
+      <div className='w-full flex justify-end h-full items-center gap-6'>
         <SaveToDatabase />
         <GoogleAuth />
       </div>
